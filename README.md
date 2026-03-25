@@ -8,7 +8,7 @@ Podemos imaginar que temos os seguintes BITs
 Dividimos eles em alguns grupos
 
 ### Instruções
-Os bits <span style="color:#A0C4FF">[00][01][02][03]</span> são os bits de instruções seguindo a tabela verdasde abaixo
+Os BITs <span style="color:#A0C4FF">[00][01][02][03]</span> são os BITs de instruções seguindo a tabela verdade abaixo
 
 |[00]|[01]|[02]|[03]|Comando|
 |:---|:---|:---|:---|:---|
@@ -21,8 +21,8 @@ Os bits <span style="color:#A0C4FF">[00][01][02][03]</span> são os bits de inst
 |0|1|1|0|And dois registradores|
 |0|1|1|1|Or dois registradores|
 |1|0|0|0|XOr dois registradores|
-|1|0|0|1|Desloca os bits para a ESQUERDA|
-|1|0|1|0|Desloca os bits para a DIREITA|
+|1|0|0|1|Desloca os BITs para a ESQUERDA|
+|1|0|1|0|Desloca os BITs para a DIREITA|
 |1|0|1|1|Compara dois valores e atualiza as flags|
 |1|1|0|0|Pulo INCONDICIONAL|
 |1|1|0|1|Pula se IGUAL|
@@ -30,7 +30,7 @@ Os bits <span style="color:#A0C4FF">[00][01][02][03]</span> são os bits de inst
 |1|1|1|1|Para o clock e encerra o programa|
 
 ### Registradores
-Os bits <span style="color:#C0EBA6">[04][05]</span> são utilizados para dizer o endereço do primeiro grupo de registradores e os bits <span style="color:#FFB7B2">[06][07]</span> do segundo grupo de registradores sendo:
+Os BITs <span style="color:#C0EBA6">[04][05]</span> são utilizados para dizer o endereço do primeiro grupo de registradores e os BITs <span style="color:#FFB7B2">[06][07]</span> do segundo grupo de registradores sendo:
 - R0 = 00
 - R1 = 01
 - R2 = 10
@@ -44,12 +44,12 @@ Se quisermos escrever um comando que copia de um registrador para o outro podemo
 
 0100 01 10 -> Somamos o valor do registrador R2 com o R1 e salvamos em R1
 
-Em comandos que utilizam apenas registradores sem precisar de um dado externo, os bits restantes são ignorados pelo sistema
+Em comandos que utilizam apenas registradores sem precisar de um dado externo, os BITs restantes são ignorados pelo sistema
 
 ### Representação de Dados
-Os bits <span style="color:#FFB7B2">[06][07]</span><span style="color:#DDBDF1">[08][09][10][11][12][13][14][15]</span> representam os dados que conseguimos escrever e utilizando o método **Complemento de Dois** o bit mais a esquerda representa o número negativo, que se ativado, tal numero é negativo.
+Os BITs <span style="color:#FFB7B2">[06][07]</span><span style="color:#DDBDF1">[08][09][10][11][12][13][14][15]</span> representam os dados que conseguimos escrever e utilizando o método **Complemento de Dois** o BIT mais a esquerda representa o número negativo, que se ativado, tal numero é negativo.
 
-Os bits <span style="color:#FFB7B2">[06][07]</span> só serão utilizados como números quando o comando não for de fazer conta, chamamos isso de **Tipo II** assim permitindo números de **-512** até **+511** sem esses bits podemos representar números de **-128** até **+127**
+Os BITs <span style="color:#FFB7B2">[06][07]</span> só serão utilizados como números quando o comando não for de fazer conta, chamamos isso de **Tipo II** assim permitindo números de **-512** até **+511** sem esses BITs podemos representar números de **-128** até **+127**
 
 ## Mapa de Memória
 
@@ -65,12 +65,12 @@ Para organizar o sistema, dividimos esse espaço físico em três grandes "bairr
     * Mapeamento de Hardware. Se escrevermos um dado no endereço 50.000, ele não vai para uma memória, ele acende um pixel na tela
 
 ### Como a CPU acessa a memória sem confundir com Instruções?
-Como nossas instruções têm 16 bits, não sobra espaço na mesma linha para escrever um endereço inteiro de 65 mil. 
+Como nossas instruções têm 16 BITs, não sobra espaço na mesma linha para escrever um endereço inteiro de 65 mil. 
 
 Para resolver isso, usamos o conceito de **Instrução de Palavra Dupla**. 
 Quando usamos comandos de memória (**{A ser definido}**, **{A ser definido}**) ou pulos distantes (**{A ser definido}**), o compilador gera duas linhas seguidas:
 1.  **Linha 1 (Instrução):** A CPU lê o OpCode e entende que o comando exige um endereço.
-2.  **Linha 2 (Endereço):** A CPU lê os próximos 16 bits inteiros como um endereço de memória puro (ignorando os formatos de OpCode ou Registrador).
+2.  **Linha 2 (Endereço):** A CPU lê os próximos 16 BITs inteiros como um endereço de memória puro (ignorando os formatos de OpCode ou Registrador).
 ---
 # Criadores
 
