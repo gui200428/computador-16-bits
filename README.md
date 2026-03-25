@@ -1,5 +1,14 @@
 # Computador 16 BITS
 
+## Objetivo do Projeto
+
+O objetivo central do projeto é desenvolver um ecossistema computacional completo de 16 bits a partir do zero, desde a engenharia física do hardware até o desenvolvimento de software de alto nível. O escopo da construção é dividido em quatro pontos principais:
+
+* **Arquitetura de Hardware Customizada:** Projetar e construir fisicamente o minicomputador (migrando para uma Placa de Circuito Impresso - PCB), definindo a lógica da Unidade Central de Processamento (CPU), barramentos e o mapeamento físico de memória (RAM e ROM).
+* **Controlador de Vídeo Dedicado:** Desenvolver um periférico de vídeo em hardware (uma "GPU") para gerenciar o mapeamento e a renderização de gráficos em um monitor construído com matriz de LEDs, liberando a CPU principal do processamento de imagem.
+* **Linguagem de Programação e Ferramentas:** Criar um conjunto de instruções (ISA) exclusivo e desenvolver as ferramentas de compilação necessárias para traduzir código lógico em linguagem de máquina nativa.
+* **Sistema Operacional e Jogos:** Programar o sistema base para gerenciar o hardware, o espaço de memória e as rotinas de I/O, seguido do desenvolvimento e execução de jogos interativos rodando nativamente na plataforma.
+
 ## Regras
 Podemos imaginar que temos os seguintes BITs
 
@@ -74,8 +83,9 @@ Quando usamos comandos de memória (**{A ser definido}**, **{A ser definido}**) 
 ---
 # Criadores
 
-- [Guilherme Augusto](https://github.com/gui200428/)
-    - *{O que fez}*
-- [João Francisco](https://github.com/JFScripts)
-    - *{O que fez}*
+|                                           Avatar                                           | Nome                                                       | Contribuição |
+| :----------------------------------------------------------------------------------------: | ---------------------------------------------------------- | ------------ |
+| <img src="https://github.com/gui200428.png?size=80" width="80px" alt="Guilherme Augusto"/> | [Guilherme Augusto](https://github.com/gui200428)          | TODO         |
+|  <img src="https://github.com/jfscripts.png?size=80" width="80px" alt="João Francisco"/>   | [João Francisco B. Ferreira](https://github.com/jfscripts) | TODO         |
+
 ---
