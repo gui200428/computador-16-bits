@@ -1,5 +1,0 @@
-wait
-lregister
-sumregister
-rshift
-end
