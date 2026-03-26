@@ -9,6 +9,9 @@ O objetivo central do projeto é desenvolver um ecossistema computacional comple
 * **Linguagem de Programação e Ferramentas:** Criar um conjunto de instruções (ISA) exclusivo e desenvolver as ferramentas de compilação necessárias para traduzir código lógico em linguagem de máquina nativa.
 * **Sistema Operacional e Jogos:** Programar o sistema base para gerenciar o hardware, o espaço de memória e as rotinas de I/O, seguido do desenvolvimento e execução de jogos interativos rodando nativamente na plataforma.
 
+## Diagrama de Organização do Hardware
+![Computador 16 BITS](./docs/hardware/pc-16-bits-model.png)
+
 ## Regras
 Podemos imaginar que temos os seguintes BITs
 
