@@ -81,6 +81,71 @@ Quando usamos comandos de memória (**{A ser definido}**, **{A ser definido}**) 
 1.  **Linha 1 (Instrução):** A CPU lê o OpCode e entende que o comando exige um endereço.
 2.  **Linha 2 (Endereço):** A CPU lê os próximos 16 BITs inteiros como um endereço de memória puro (ignorando os formatos de OpCode ou Registrador).
 ---
+
+# Documentação do Assembly (Arquitetura 16-bits) - Gerado Pelo Gemini (Revisar Depois)
+
+Este é o manual de referência para o conjunto de instruções (ISA) do nosso processador customizado de 16-bits.
+
+## 💾 Registradores Disponíveis
+O processador possui 4 registradores de uso geral:
+* `r0`, `r1`, `r2`, `r3`
+
+---
+
+## 🛠️ Conjunto de Instruções
+
+### 1. Movimentação de Dados e Matemática (1 Palavra)
+Instruções básicas que ocupam apenas 1 linha na memória.
+
+* `NOP` : Não faz nada (No Operation).
+* `LDI rx, valor` : Carrega um número direto (até 10 bits) no registrador. *(Ex: `LDI r0 5`)*
+* `SUM rx, ry` : Soma o valor de `ry` com `rx` e salva em `rx`. *(Ex: `SUM r0 r1`)*
+* `SUB rx, ry` : Subtrai `ry` de `rx`.
+* `AND rx, ry` : Operação lógica AND bit a bit.
+* `ORR rx, ry` : Operação lógica OR bit a bit.
+* `XOR rx, ry` : Operação lógica XOR bit a bit.
+* `SHL rx` : Desloca os bits de `rx` para a esquerda.
+* `SHR rx` : Desloca os bits de `rx` para a direita.
+* `CMP rx, ry` : Compara `rx` e `ry` e atualiza as flags do processador (usado antes de pulos condicionais).
+* `HLT` : Para o clock e encerra a execução do programa.
+
+### 2. Memória RAM (2 Palavras / Palavra Dupla)
+Instruções que acessam a memória RAM. Exigem 2 linhas na ROM. O endereço pode ser um número de 16 bits ou uma Label.
+
+* `LDR rx, endereco` : Lê um valor da RAM e salva no registrador `rx`. *(Ex: `LDR r1 1000`)*
+* `STR rx, endereco` : Grava o valor do registrador `rx` na RAM. *(Ex: `STR r0 100`)*
+
+### 3. Controle de Fluxo / Saltos (2 Palavras / Palavra Dupla)
+Instruções que alteram o Program Counter (PC). O destino pode ser uma linha exata ou uma Label.
+
+* `JMP destino` : Pulo incondicional. Vai para o destino sem perguntar nada. *(Ex: `JMP loop`)*
+* `JEQ destino` : Pula apenas se a última comparação (`CMP`) deu IGUAL.
+* `JGT destino` : Pula apenas se a última comparação (`CMP`) deu MAIOR.
+
+---
+
+## 🏷️ Labels (Marcadores)
+As labels são usadas para marcar posições no código sem precisar decorar o número da linha na memória física. Elas não ocupam espaço na ROM compilada.
+
+**Regras:**
+1. Devem terminar obrigatoriamente com dois pontos `:`.
+2. Ficam sozinhas na linha.
+
+**Exemplo de uso:**
+```assembly
+LDI r0 0
+LDI r1 1
+
+inicio_loop:
+SUM r0 r1
+CMP r0 r1
+JEQ fim
+JMP inicio_loop
+
+fim:
+HLT
+
+---
 # Criadores
 
 |                                           Avatar                                           | Nome                                                       | Contribuição |

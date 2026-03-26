@@ -20,7 +20,7 @@ def traduzirCodigo(caminhoArquivo):
         "HLT" : "1111" # Para o clock e encerra o programa
     }
 
-    comandosEspeciais = ["LDR", "STR"]
+    comandosEspeciais = ["LDR", "STR", "JMP", "JEQ", "JGT"]
 
     registradores = {
         "r0":"00",
@@ -31,21 +31,49 @@ def traduzirCodigo(caminhoArquivo):
 
     codigoTraduzido = []
     codigo = lerCodigo(caminhoArquivo)
+    # Carregar Labels
+    contador = 0
+    labels = {}
     for linha in codigo:
         curPalavra = linha[0]
+        if ":" in curPalavra:
+            label = curPalavra.replace(":", "")
+            labels[label] = contador
+            continue
+        elif curPalavra in comandosEspeciais:
+            contador += 2
+        else:
+            contador += 1
+
+    for linha in codigo:
+        curPalavra = linha[0]
+        if curPalavra.endswith(":"):
+            continue
         if curPalavra in comandos:
             valorComando = int(comandos[curPalavra], 2) << 12
             rx = ry = 0
             endereco = None
-            if len(linha) >= 2:
-                rx = int(registradores[linha[1]], 2) << 10
-            if len(linha) == 3:
-                if linha[2] in registradores:
-                    ry = int(registradores[linha[2]], 2) << 8
-                elif curPalavra in comandosEspeciais:
-                    endereco = int(linha[2]) & 0b1111111111111111
-                else: 
-                    ry = int(linha[2]) & 0b1111111111
+            if curPalavra in comandosEspeciais:
+                if curPalavra in ["JMP" , "JEQ", "JGT"]:
+                    if linha[1] in labels:
+                        endereco = labels[linha[1]]
+                    else:
+                        endereco = int(linha[1]) & 0b1111111111111111
+                elif curPalavra in ["LDR", "STR"]:
+                    rx = int(registradores[linha[1]], 2) << 10
+                    if linha[2] in labels:
+                        endereco = labels[linha[2]]
+                    else:
+                        endereco = int(linha[2]) & 0b1111111111111111
+
+            else:
+                if len(linha) >= 2:
+                    rx = int(registradores[linha[1]], 2) << 10
+                if len(linha) == 3:
+                    if linha[2] in registradores:
+                        ry = int(registradores[linha[2]], 2) << 8
+                    else:
+                        ry = int(linha[2]) & 0b1111111111
             valorComando = valorComando | rx | ry
             codigoTraduzido.append(valorComando)
             if endereco != None:
@@ -55,5 +83,5 @@ def traduzirCodigo(caminhoArquivo):
 
 
 if __name__ == "__main__":
-    traduzirCodigo(".\Compilador\Codigos\ArquivosBrutos\snake.txt")
+    traduzirCodigo(".\Compilador\Codigos\ProgramasBrutos\snake.txt")
   
