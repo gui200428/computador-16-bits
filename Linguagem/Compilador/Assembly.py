@@ -1,7 +1,7 @@
 from Parser import traduzirCodigo
 from IO import *
 
-def main():
+def assembly():
     pastaDeCodigo = "./Compilador/Codigos/ProgramasBrutos"
     pastaCompilada = "./Compilador/Codigos/Compilados"
     criarDiretorio(pastaDeCodigo)
@@ -22,4 +22,4 @@ def main():
     
 
 if __name__ == "__main__":
-    main()
+    assembly()

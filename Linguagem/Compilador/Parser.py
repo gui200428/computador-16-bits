@@ -1,6 +1,6 @@
 from Lexer import lerCodigo
 
-def traduzirCodigo(caminhoArquivo):
+def traduzirCodigo(codigo):
     comandos = {
         "NOP" : "0000", #Não Faz Nada
         "LDI" : "0001", #	Carrega o numero no registrador
@@ -30,7 +30,7 @@ def traduzirCodigo(caminhoArquivo):
     }
 
     codigoTraduzido = []
-    codigo = lerCodigo(caminhoArquivo)
+    #codigo = lerCodigo(caminhoArquivo)
     # Carregar Labels
     contador = 0
     labels = {}

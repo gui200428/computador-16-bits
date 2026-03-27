@@ -7,6 +7,10 @@ def criarDiretorio(caminho):
     diretorio = Path(caminho)
     diretorio.mkdir(parents=True, exist_ok=True)
 
+def criarPastasObrigatorias(pastas):
+    for pasta in pastas:
+        criarDiretorio(pasta)
+
 def criarBinario(caminho, nome, dados=None, qntBytes=2):
     criarDiretorio(caminho)
     endereco = caminho + "/" +nome + ".bin"
