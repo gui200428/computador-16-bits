@@ -5,16 +5,52 @@ def compilar(codigoAltoNivel, finalRam=49151):
     assembly = []
     ponteiroRam = finalRam
     variaveis = {} #NomeVariavel : Endereço
-    contadores = {"mult" : 0, "div" : 0}
+    contadores = {"mult" : 0, "div" : 0, "if": 0} #Conseguir numerar as labels
+    pilhaBlocos = [] #Salvar a label do if
     
     for linha in codigoAltoNivel:
         if "var" in linha[0]:
             assembly.extend(compilarVariavel(linha, ponteiroRam, variaveis))
             ponteiroRam -= 1
+
         elif linha[0] in variaveis and "=" in linha:
-            if len(linha) >= 5:
-                assembly.extend(compilarMatematica(linha[2:], variaveis, contadores, ponteiroRam))
-                assembly.append(f"STR r0 {variaveis[linha[0]]}")
+            assembly.extend(compilarMatematica(linha[2:], variaveis, contadores, ponteiroRam))
+            assembly.append(f"STR r0 {variaveis[linha[0]]}")
+            
+        elif linha[0] == "if":  
+            labelFimCompleto = f"FIM_BLOCO_IF_{contadores['if']}"
+            proxCondicao = f"PROX_CONDICAO_{contadores['if']}_0"
+            dictCorrente = {"fimTotal": labelFimCompleto,
+            "proximo": proxCondicao,
+            "idIf": contadores['if'],
+            "elo": 0}
+            pilhaBlocos.append(dictCorrente)     
+            assembly.extend(compilarIF(linha, variaveis, contadores, ponteiroRam, proxCondicao, labelFimCompleto))
+            contadores["if"] += 1
+        elif linha[0] == "}" and "elif" in linha:
+            topo = pilhaBlocos[-1]
+            assembly.append(f"JMP {topo['fimTotal']}")
+            assembly.append(f"{topo['proximo']}:")
+            topo["elo"] += 1
+            proxCondicao = f"PROX_CONDICAO_{topo['idIf']}_{topo['elo']}"
+            topo["proximo"] = proxCondicao
+            novaLinha = linha[1:]
+            novaLinha[0] = "if"
+            assembly.extend(compilarIF(novaLinha, variaveis, contadores, ponteiroRam, proxCondicao, topo["fimTotal"]))
+
+        elif linha[0] == "}" and "else" in linha:
+            topo = pilhaBlocos[-1]
+            assembly.append(f"JMP {topo['fimTotal']}")
+            assembly.append(f"{topo['proximo']}:")
+            topo["proximo"] = ""
+
+        elif linha[0] == "}":
+            labelAtual = pilhaBlocos.pop()
+            if labelAtual['proximo'] != "":
+                assembly.append(f"{labelAtual['proximo']}:")
+            assembly.append(f"{labelAtual['fimTotal']}:")
+
+
     return assembly
 
 # Lidar com Variaveis
@@ -24,8 +60,9 @@ def compilarVariavel(linha, ponteiroRam, variaveis):
         return [f"LDI r0 {linha[3]}",f"STR r0 {ponteiroRam}"]
 
 # Lidar com matematica
-
 def compilarMatematica(linha, variaveis, contadores, ponteiroRam):
+    if not linha:
+        return ["LDI r0 0"]
     if len(linha) == 1:
         ultimoValor = linha[0]
         if ultimoValor in variaveis:
@@ -127,7 +164,68 @@ def divisao(ponteiroRam, contadores):
     contadores["div"] += 1
     return codigoDiv
     
+# Lidar com if/else
+def compilarIF(linha, variaveis, contadores, ponteiroRam, proxCondicao, final):
+    codigoFinal = []
+    labelEntra = f"ENTRA_IF_{contadores['if']}"
+    labelFim = proxCondicao
+
+    linha = linha[1:-1]
+    comparadores = ["==", "!=", ">=", "<=" ,">", "<"]
+    curComparador = ""
+    for comparador in comparadores:
+        try:
+            posicao = linha.index(comparador)
+            esquerda = linha[:posicao]
+            direita = linha[posicao + 1:]
+            curComparador = comparador
+            break
+        except ValueError:
+            pass
+
+    rEsquerda = compilarMatematica(esquerda, variaveis, contadores, ponteiroRam)
+    rDireita = compilarMatematica(direita, variaveis, contadores, ponteiroRam - 1)
+    codigoFinal.extend(rEsquerda)
+    codigoFinal.append(f"STR r0 {ponteiroRam}") # Esquerda
+    codigoFinal.extend(rDireita)
+    codigoFinal.append(f"LDR r1 {ponteiroRam}")
+    
+    match curComparador:
+        case "==":
+            codigoFinal.append("CMP r1 r0")
+            codigoFinal.append(f"JEQ {labelEntra}")
+            codigoFinal.append(f"JMP {labelFim}")
+            codigoFinal.append(f"{labelEntra}:")
+        case "!=":
+            codigoFinal.append("CMP r1 r0")
+            codigoFinal.append(f"JEQ {labelFim}")
+        case ">":
+            codigoFinal.append("CMP r1 r0")
+            codigoFinal.append(f"JGT {labelEntra}")
+            codigoFinal.append(f"JMP {labelFim}")
+            codigoFinal.append(f"{labelEntra}:")
+        case "<":
+            codigoFinal.append("CMP r0 r1")
+            codigoFinal.append(f"JGT {labelEntra}")
+            codigoFinal.append(f"JMP {labelFim}")
+            codigoFinal.append(f"{labelEntra}:")
+        case ">=":
+            codigoFinal.append("CMP r1 r0")
+            codigoFinal.append(f"JGT {labelEntra}")
+            codigoFinal.append(f"JEQ {labelEntra}")
+            codigoFinal.append(f"JMP {labelFim}")
+            codigoFinal.append(f"{labelEntra}:")
+        case "<=":
+            codigoFinal.append("CMP r0 r1")
+            codigoFinal.append(f"JGT {labelEntra}")
+            codigoFinal.append(f"JEQ {labelEntra}")
+            codigoFinal.append(f"JMP {labelFim}")
+            codigoFinal.append(f"{labelEntra}:")
+    return codigoFinal
+        
 
 
 if __name__ == "__main__":
-    print(compilar(lerCodigo("./Linguagem/teste.txt")))
+    assembly = compilar(lerCodigo("./Linguagem/teste.txt"))
+    for instrução in assembly:
+        print(instrução)
