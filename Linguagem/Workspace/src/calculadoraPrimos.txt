@@ -1,0 +1,16 @@
+var n = 11
+var ehPrimo = 1
+var d = 2
+
+while d < n {
+    var temp = n
+    
+    while temp >= d {
+        temp = temp - d
+    }
+    if temp == 0 {
+        ehPrimo = 0
+    }
+    
+    d = d + 1
+}

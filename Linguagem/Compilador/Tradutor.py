@@ -62,7 +62,7 @@ def compilar(codigoAltoNivel, finalRam=49151):
             if labelAtual["tipo"] == "while":
                 assembly.append(f"JMP {labelAtual['inicio']}")
                 assembly.append(f"{labelAtual['fim']}:")
-            elif labelAtual[""] == "if":
+            elif labelAtual["tipo"] == "if":
                 if labelAtual['proximo'] != "":
                     assembly.append(f"{labelAtual['proximo']}:")
                 assembly.append(f"{labelAtual['fimTotal']}:")
