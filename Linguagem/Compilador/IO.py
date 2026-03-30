@@ -3,57 +3,49 @@ import subprocess
 import os
 import sys
 
-def criarDiretorio(caminho):
-    diretorio = Path(caminho)
-    diretorio.mkdir(parents=True, exist_ok=True)
-
 def criarPastasObrigatorias(pastas):
     for pasta in pastas:
-        criarDiretorio(pasta)
+        pasta.mkdir(parents=True, exist_ok=True)
 
-def criarBinario(caminho, nome, dados=None, qntBytes=2):
-    criarDiretorio(caminho)
-    endereco = caminho + "/" +nome + ".bin"
-    if dados == None:
-        with open(endereco, "wb") as arquivo:
-            pass
+def criarBinario(pasta: Path, nome: str, dados=None, qntBytes=2):
+    pasta.mkdir(parents=True, exist_ok=True)
+    arquivo_bin = pasta / f"{nome}.bin" 
+    if dados is None:
+        arquivo_bin.touch() 
         return
-    with open(endereco, "wb") as arquivo:
-        for linhas in dados:
-            arquivo.write(linhas.to_bytes(qntBytes, byteorder="big"))
+    with open(arquivo_bin, "wb") as arquivo:
+        for linha in dados:
+            arquivo.write(linha.to_bytes(qntBytes, byteorder="big"))
 
-def criarTxt(caminho, nome, dados=None):
-    criarDiretorio(caminho)
-    endereco = caminho + "/" + nome + ".txt"
-    if dados == None:
-        with open(endereco, "w") as arquivo:
-            pass
+def criarTxt(pasta: Path, nome: str, dados=None):
+    pasta.mkdir(parents=True, exist_ok=True)
+    arquivo_txt = pasta / f"{nome}.txt"
+    if dados is None:
+        arquivo_txt.touch()
         return
-    with open(endereco, "w") as arquivo:
-        for linhas in dados:
-            arquivo.write(f"{linhas:016b}\n")
+    with open(arquivo_txt, "w") as arquivo:
+        for linha in dados:
+            arquivo.write(f"{linha:016b}\n")
 
-def verificarDiretorio(diretorio):
-    return Path(diretorio).is_file()
+def verificarDiretorio(arquivo: Path):
+    return arquivo.is_file()
 
-def abrirArquivo(diretorio):
-    caminho_absoluto = Path(diretorio).resolve()
-    diretorioSTR = str(caminho_absoluto)
+def abrirArquivo(arquivo: Path):
+    caminho_absoluto = str(arquivo.resolve())
     editores = ["code", "codium"]
-
     for editor in editores:
         try:
-            subprocess.run(f'{editor} "{diretorioSTR}"', shell=True, check=True)
+            subprocess.run(f'{editor} "{caminho_absoluto}"', shell=True, check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             return 
         except subprocess.CalledProcessError:
             continue 
+            
     try:
         if sys.platform == "win32":
-            os.startfile(diretorioSTR)
+            os.startfile(caminho_absoluto)
         elif sys.platform == "darwin":
-            subprocess.run(f'open "{diretorioSTR}"', shell=True, check=True)
+            subprocess.run(f'open "{caminho_absoluto}"', shell=True, check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         else:
-            subprocess.run(f'xdg-open "{diretorioSTR}"', shell=True, check=True)
-            
+            subprocess.run(f'xdg-open "{caminho_absoluto}"', shell=True, check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     except Exception as erro:
         print(f"Aviso: Não consegui abrir o editor de texto automaticamente. ({erro})")

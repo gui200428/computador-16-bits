@@ -1,34 +1,50 @@
 from Compilador.IO import *
 from Compilador.Tradutor import compilar
 from Compilador.Lexer import lerCodigo
+from Compilador.Parser import traduzirCodigo
 import tkinter as tk
 from tkinter import messagebox
 
+DIRETORIO_ATUAL = Path(__file__).parent
+
+WORKSPACE = DIRETORIO_ATUAL / "Workspace"
+PASTA_SRC = WORKSPACE / "src"
+PASTA_BUILD = WORKSPACE / "build"
+
 def main():
     init()
-    pastaDeCodigo = "./Compilador/Codigos/AltoNivel"
-    pastaDeBinario = "./Linguagem/Codigos/Binario"
-    curPrograma = input("Digite o programa que você quer abrir:\n")
+    url = "https://github.com/JFScripts"
+    nomeClicavel = f"\033]8;;{url}\aJoão Francisco\033]8;;\a"
+    print("==================================================")
+    print(f"= COMPILADOR 16 BITS ~ FEITO POR: {nomeClicavel} =")
+    print("==================================================")
 
-    if not verificarDiretorio(f"{pastaDeCodigo}/{curPrograma}.txt"):
-        criarTxt(pastaDeCodigo, curPrograma)
-        abrirArquivo(pastaDeCodigo + "/" +curPrograma + ".txt")
-        print(f"\nPrograma não existe\nEle foi criado em {pastaDeCodigo}")
+    curPrograma = input("Digite o programa que você quer abrir/criar:\n> ")
+    arquivoCodigo = PASTA_SRC / f"{curPrograma}.txt"
+    
+    if not verificarDiretorio(arquivoCodigo):
+        criarTxt(PASTA_SRC, curPrograma)
+        abrirArquivo(arquivoCodigo)
+        print(f"\n[!] O programa [{curPrograma}] não existia.")
+        print(f"[+] Um novo arquivo foi criado em: {PASTA_SRC}")
+        print(f"> Escreva seu código, salve o arquivo e rode o compilador novamente")
         return
-    codigoLido = lerCodigo(f"{pastaDeCodigo}/{curPrograma}.txt")
+
+    pastaDestino = PASTA_BUILD / curPrograma
+
+    codigoLido = lerCodigo(str(arquivoCodigo))
     codigoAssembly = compilar(codigoLido)
     codigoBinario = traduzirCodigo(codigoAssembly)
-    criarBinario(pastaDeBinario, curPrograma, codigoBinario)
+    criarBinario(pastaDestino, curPrograma, codigoBinario)
+    criarTxt(pastaDestino, curPrograma, codigoBinario)
+    
     root = tk.Tk()
     root.withdraw()
-    mensagem = f"Pode Ser Encontrado em:\n{pastaDeBinario}/{curPrograma}/{curPrograma}.bin"
-    messagebox.showinfo("Programa Compilado Com Sucesso!",mensagem)
+    mensagem = f"Compilação concluída!\n\nOs arquivos compilados estão na pasta:\n{pastaDestino}"    
+    messagebox.showinfo("Sucesso!", mensagem)
 
 def init():
-    caminhosObrigatorios = ["./Linguagem/Codigos/Binario",
-    "./Linguagem/Codigos/ProgramasBrutos",
-    "./Linguagem/Codigos/AltoNivel"]
-
+    caminhosObrigatorios = [PASTA_SRC, PASTA_BUILD]
     criarPastasObrigatorias(caminhosObrigatorios)
 
 if __name__ == "__main__":

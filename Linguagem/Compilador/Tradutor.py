@@ -1,16 +1,18 @@
-from IO import *
-from Lexer import lerCodigo
+from .IO import *
+from .Lexer import lerCodigo
 
 def compilar(codigoAltoNivel, finalRam=49151):
     assembly = []
     ponteiroRam = finalRam
     variaveis = {} #NomeVariavel : Endereço
-    contadores = {"mult" : 0, "div" : 0, "if": 0} #Conseguir numerar as labels
+    contadores = {"mult": 0, "div": 0, "if": 0, "while": 0} #Conseguir numerar as labels
     pilhaBlocos = [] #Salvar a label do if
     
     for linha in codigoAltoNivel:
         if "var" in linha[0]:
-            assembly.extend(compilarVariavel(linha, ponteiroRam, variaveis))
+            variaveis[linha[1]] = ponteiroRam
+            assembly.extend(compilarMatematica(linha[3:], variaveis, contadores, ponteiroRam))
+            assembly.append(f"STR r0 {ponteiroRam}")            
             ponteiroRam -= 1
 
         elif linha[0] in variaveis and "=" in linha:
@@ -20,13 +22,15 @@ def compilar(codigoAltoNivel, finalRam=49151):
         elif linha[0] == "if":  
             labelFimCompleto = f"FIM_BLOCO_IF_{contadores['if']}"
             proxCondicao = f"PROX_CONDICAO_{contadores['if']}_0"
-            dictCorrente = {"fimTotal": labelFimCompleto,
+            dictCorrente = {"tipo": "if",
+            "fimTotal": labelFimCompleto,
             "proximo": proxCondicao,
             "idIf": contadores['if'],
             "elo": 0}
             pilhaBlocos.append(dictCorrente)     
             assembly.extend(compilarIF(linha, variaveis, contadores, ponteiroRam, proxCondicao, labelFimCompleto))
             contadores["if"] += 1
+            
         elif linha[0] == "}" and "elif" in linha:
             topo = pilhaBlocos[-1]
             assembly.append(f"JMP {topo['fimTotal']}")
@@ -44,20 +48,27 @@ def compilar(codigoAltoNivel, finalRam=49151):
             assembly.append(f"{topo['proximo']}:")
             topo["proximo"] = ""
 
+        elif linha[0] == "while":
+            labelInicio = f"INICIO_WHILE_{contadores['while']}"
+            labelFim = f"FIM_WHILE_{contadores['while']}"
+            assembly.append(f"{labelInicio}:")
+            dictWhile = {"tipo": "while", "inicio": labelInicio, "fim": labelFim}
+            pilhaBlocos.append(dictWhile)
+            assembly.extend(compilarIF(linha, variaveis, contadores, ponteiroRam, labelFim, labelFim))
+            contadores["while"] += 1
+
         elif linha[0] == "}":
             labelAtual = pilhaBlocos.pop()
-            if labelAtual['proximo'] != "":
-                assembly.append(f"{labelAtual['proximo']}:")
-            assembly.append(f"{labelAtual['fimTotal']}:")
+            if labelAtual["tipo"] == "while":
+                assembly.append(f"JMP {labelAtual['inicio']}")
+                assembly.append(f"{labelAtual['fim']}:")
+            elif labelAtual[""] == "if":
+                if labelAtual['proximo'] != "":
+                    assembly.append(f"{labelAtual['proximo']}:")
+                assembly.append(f"{labelAtual['fimTotal']}:")
 
 
     return assembly
-
-# Lidar com Variaveis
-def compilarVariavel(linha, ponteiroRam, variaveis):
-    # As variaveis sempre são sempre colocadas em R0 primeiro
-        variaveis[linha[1]] = ponteiroRam
-        return [f"LDI r0 {linha[3]}",f"STR r0 {ponteiroRam}"]
 
 # Lidar com matematica
 def compilarMatematica(linha, variaveis, contadores, ponteiroRam):
