@@ -1,8 +1,0 @@
-NOP
-NOP
-LDI r0 9
-LDI r1 10
-SUM r0 r1
-STR r0 100
-NOP
-HLT

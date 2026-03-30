@@ -1,6 +1,6 @@
-from Lexer import lerCodigo
+from .Lexer import lerCodigo
 
-def traduzirCodigo(caminhoArquivo):
+def traduzirCodigo(codigo):
     comandos = {
         "NOP" : "0000", #Não Faz Nada
         "LDI" : "0001", #	Carrega o numero no registrador
@@ -30,12 +30,14 @@ def traduzirCodigo(caminhoArquivo):
     }
 
     codigoTraduzido = []
-    codigo = lerCodigo(caminhoArquivo)
     # Carregar Labels
     contador = 0
     labels = {}
     for linha in codigo:
-        curPalavra = linha[0]
+        linhaSplit = linha.split()
+        if not linhaSplit: continue
+
+        curPalavra = linhaSplit[0]
         if ":" in curPalavra:
             label = curPalavra.replace(":", "")
             labels[label] = contador
@@ -46,7 +48,10 @@ def traduzirCodigo(caminhoArquivo):
             contador += 1
 
     for linha in codigo:
-        curPalavra = linha[0]
+        linhaSplit = linha.split()
+        if not linhaSplit: continue
+
+        curPalavra = linhaSplit[0]
         if curPalavra.endswith(":"):
             continue
         if curPalavra in comandos:
@@ -55,25 +60,25 @@ def traduzirCodigo(caminhoArquivo):
             endereco = None
             if curPalavra in comandosEspeciais:
                 if curPalavra in ["JMP" , "JEQ", "JGT"]:
-                    if linha[1] in labels:
-                        endereco = labels[linha[1]]
+                    if linhaSplit[1] in labels:
+                        endereco = labels[linhaSplit[1]]
                     else:
-                        endereco = int(linha[1]) & 0b1111111111111111
+                        endereco = int(linhaSplit[1]) & 0b1111111111111111
                 elif curPalavra in ["LDR", "STR"]:
-                    rx = int(registradores[linha[1]], 2) << 10
-                    if linha[2] in labels:
-                        endereco = labels[linha[2]]
+                    rx = int(registradores[linhaSplit[1]], 2) << 10
+                    if linhaSplit[2] in labels:
+                        endereco = labels[linhaSplit[2]]
                     else:
-                        endereco = int(linha[2]) & 0b1111111111111111
+                        endereco = int(linhaSplit[2]) & 0b1111111111111111
 
             else:
-                if len(linha) >= 2:
-                    rx = int(registradores[linha[1]], 2) << 10
-                if len(linha) == 3:
-                    if linha[2] in registradores:
-                        ry = int(registradores[linha[2]], 2) << 8
+                if len(linhaSplit) >= 2:
+                    rx = int(registradores[linhaSplit[1]], 2) << 10
+                if len(linhaSplit) == 3:
+                    if linhaSplit[2] in registradores:
+                        ry = int(registradores[linhaSplit[2]], 2) << 8
                     else:
-                        ry = int(linha[2]) & 0b1111111111
+                        ry = int(linhaSplit[2]) & 0b1111111111
             valorComando = valorComando | rx | ry
             codigoTraduzido.append(valorComando)
             if endereco != None:
